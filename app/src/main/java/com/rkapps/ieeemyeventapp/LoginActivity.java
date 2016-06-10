@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e("log_tag","Still Nope" + params[0]);
 
                 DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
-                HttpPost httppost = new HttpPost("http://irobinz.tk/ieee/login2.php?email=" + params[0] + "&pass=" + params[1]);
+                HttpPost httppost = new HttpPost("http://irobinz.tk/ieee/login.php?email=" + params[0] + "&pass=" + params[1]);
 
                 InputStream inputStream = null;
                 String result = null;
