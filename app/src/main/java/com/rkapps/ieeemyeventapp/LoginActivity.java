@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             protected String doInBackground(String... params) {
                 Log.e("log_tag","Still Nope" + params[0]);
-
+				//HTTP Login Page
                 DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
                 HttpPost httppost = new HttpPost("http://irobinz.tk/ieee/login.php?email=" + params[0] + "&pass=" + params[1]);
 
