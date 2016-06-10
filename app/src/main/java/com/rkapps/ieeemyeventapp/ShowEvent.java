@@ -2,8 +2,11 @@ package com.rkapps.ieeemyeventapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -12,20 +15,29 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class ShowEvent extends AppCompatActivity {
 
@@ -55,29 +67,9 @@ public class ShowEvent extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 deleteData();
-                Snackbar.make(view, "Send feedback to bhanotkaran22@gmail.com", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
-//        sharedpreferences = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedpreferences.edit();
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        if(sharedpreferences.getString("Membership", "null").equals(mem)) {
-//            fab.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    Snackbar.make(view, "Send feedback to bhanotkaran22@gmail.com", Snackbar.LENGTH_LONG)
-//                            .setAction("Action", null).show();
-//                }
-//            });
-//            Log.e("log_tag","fabyes: " + sharedpreferences.getString("Membership", "null"));
-//        }
-//        else{
-//            fab.setVisibility(View.GONE);
-//            Log.e("log_tag","fabno: " + sharedpreferences.getString("Membership", "null"));
-//
-//        }
-//        Log.e("log_tag","fab: " + sharedpreferences.getString("Membership", "null"));
+
     }
 
     public void getData(){
@@ -185,9 +177,10 @@ public class ShowEvent extends AppCompatActivity {
                 String result = null;
                 try {
                     DefaultHttpClient httpclient = new DefaultHttpClient(new BasicHttpParams());
-                    HttpPost httppost = new HttpPost("http://irobinz.tk/ieee/delete.php?id=" +eventID);
+                    HttpGet httppost = new HttpGet("http://irobinz.tk/ieee/delete.php?id=" +eventID);
                     HttpResponse response = httpclient.execute(httppost);
                     HttpEntity entity = response.getEntity();
+                    Log.e("log_tag","EventID = " + eventID);
                     flag = true;
                 } catch (Exception e) {
                     flag = false;
@@ -196,28 +189,34 @@ public class ShowEvent extends AppCompatActivity {
                 finally {
                     try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
                 }
-                Intent in = new Intent(ShowEvent.this, MainActivity.class);
-                startActivity(in);
-                finish();
                 return result;
             }
 
             @Override
             protected void onPostExecute(String result) {
-                if(flag == true)
+                if (flag == true){
                     Toast.makeText(ShowEvent.this, "Event Successfully Deleted", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(ShowEvent.this, "Could Not Delete Event", Toast.LENGTH_SHORT).show();
-            }
+                    Intent in = new Intent(ShowEvent.this, MainActivity.class);
+                    startActivity(in);
+                    finish();
+                }
 
+                else{
+                    Intent in = new Intent(ShowEvent.this, MainActivity.class);
+                    startActivity(in);
+                    finish();
+                    Toast.makeText(ShowEvent.this, "Could Not Delete Event", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
         GetDataJSON g = new GetDataJSON();
         g.execute();
     }
 
     public boolean onOptionsItemSelected(MenuItem item){
-        Intent myIntent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivityForResult(myIntent, 0);
+        Intent i = new Intent(ShowEvent.this, MainActivity.class);
+        startActivity(i);
+        finish();
         return true;
 
     }

@@ -1,5 +1,7 @@
 package com.rkapps.ieeemyeventapp;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -13,11 +15,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.apache.http.params.BasicHttpParams;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -31,7 +35,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 
 public class MainActivity extends AppCompatActivity {
-
     ArrayList<HashMap<String, String>> personList;
     String myJSON;
     JSONArray peoples = null;
@@ -40,6 +43,17 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_RESULTS="result";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            sharedpreferences = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedpreferences.edit();
+            Log.e("log_tag", sharedpreferences.getString("Membershipinmain", "null"));
+            if (sharedpreferences.getString("Membership", "null").equals("null")) {
+                finish();
+            } else {
+            }
+        }catch(Exception e){
+            Log.e("log_tag", "Error " + e, null);
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -56,12 +70,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        InputStream is = null;
-        String result = null;
-
-
         personList = new ArrayList<HashMap<String,String>>();
-
         getData();
 
     }
@@ -82,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
                     inputStream = entity.getContent();
                     // json is UTF-8 by default
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 20);
                     StringBuilder sb = new StringBuilder();
 
                     String line = null;
@@ -92,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     result = sb.toString();
                 } catch (Exception e) {
-                    // Oops
+
                 }
                 finally {
                     try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
@@ -105,11 +114,8 @@ public class MainActivity extends AppCompatActivity {
                 myJSON=result;
                 Log.e("log_tag","result " + result);
                 try {
-                    Log.e("log_tag", "Here -1");
                     JSONObject jsonObj = new JSONObject(myJSON);
-                    Log.e("log_tag", "Here 0");
                     peoples = jsonObj.getJSONArray(TAG_RESULTS);
-                    Log.e("log_tag", "Here 1");
                     for (int i = 0; i < peoples.length(); i++) {
                         JSONObject c = peoples.getJSONObject(i);
                         events.add(new IEEEEvents(c.getString("Name"), c.getString("ShortDescription"),c.getString("StartDate"), c.getInt("EventID")));
@@ -121,10 +127,10 @@ public class MainActivity extends AppCompatActivity {
                     rv.setLayoutManager(llm);
                     RVAdapter adapter = new RVAdapter(events);
                     rv.setAdapter(adapter);
-
                 }
                 catch (Exception e){
-                    Log.e("log_tag","Still Nope" + e.toString());
+                    Log.e("log_tag","Error in reading Data: " + e.toString());
+                    Toast.makeText(MainActivity.this, "Error Reading data", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -169,6 +175,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if(id == R.id.action_refresh){
+            recreate();
+//            Intent i = new Intent(MainActivity.this, MainActivity.class);
+//            startActivity(i);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -176,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed()
     {
         super.onBackPressed();
-        moveTaskToBack(true);
+        //moveTaskToBack(true);
         finish();
     }
 }
