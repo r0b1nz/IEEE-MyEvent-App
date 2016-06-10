@@ -1,5 +1,5 @@
  <?php
- //Connection to DB
+ //Connection to DBs
          $con = mysqli_connect("localhost","root","","ieee");
 		 $sql="select * from members";
 		 $res=mysqli_query($con,$sql);
